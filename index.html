@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>بازی پرسش و پاسخ</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      direction: rtl;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      width: 80%;
+      max-width: 500px;
+    }
+    h1 { font-size: 28px; margin-bottom: 20px; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #2196F3;
+      color: white;
+      transition: background 0.3s;
+    }
+    .btn:hover { background: #1976D2; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">بازی پرسش و پاسخ</h1>
+    <div id="content">
+      <button class="btn" id="startBtn">شروع بازی</button>
+    </div>
+  </div>
+
+<script>
+const API_URL = "http://127.0.0.1:3000/backend/data.php";   // مسیر API
+const ADMIN_PASS = "admin123";    // پسورد ادمین
+let userId = null;
+let currentQuestion = 0;
+
+const questions = [
+  {q:"سوال ۱ (متن نمونه)", answers:["جواب ۱", "جواب ۲"]},
+  {q:"سوال ۲ (متن نمونه)", answers:["گزینه الف", "گزینه ب"]},
+  {q:"سوال ۳ (متن نمونه)", answers:["انتخاب اول", "انتخاب دوم"]},
+  {q:"سوال ۴ (متن نمونه)", answers:["بله", "خیر"]},
+  {q:"سوال ۵ (متن نمونه)", answers:["گزینه یک", "گزینه دو"]}
+];
+
+function randomUserId() {
+  return "user_" + Math.random().toString(36).substring(2,10);
+}
+
+async function apiPost(action, body, admin=false) {
+  const url = API_URL + "?action=" + action + (admin ? "&admin_password=" + ADMIN_PASS : "");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body || {})
+  });
+  return res.json();
+}
+
+function showQuestion(index) {
+  if (index >= questions.length) {
+    endGame();
+    return;
+  }
+  const q = questions[index];
+  document.getElementById("title").innerText = "سوال " + (index+1);
+  const content = document.getElementById("content");
+  content.innerHTML = `<p style="font-size:22px;">${q.q}</p>`;
+  q.answers.forEach((ans,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.innerText = ans;
+    btn.onclick = ()=>submitAnswer(index+1, i+1);
+    content.appendChild(btn);
+  });
+}
+
+async function submitAnswer(questionId, answer) {
+  await apiPost("set_answer", {user_id: userId, qa: questionId+"-"+answer});
+  currentQuestion++;
+  showQuestion(currentQuestion);
+}
+
+async function startGame() {
+  userId = randomUserId();
+  currentQuestion = 0;
+  await apiPost("set_state", {state:"playing"}, true);
+  showQuestion(currentQuestion);
+}
+
+async function endGame() {
+//   await apiPost("end_game", {}, true);
+  document.getElementById("title").innerText = "بازی تمام شد 🎉";
+  const content = document.getElementById("content");
+  content.innerHTML = `<button class="btn" onclick="startGame()">شروع دوباره</button>`;
+}
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+</script>
+</body>
+</html>
