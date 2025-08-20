@@ -111,7 +111,29 @@ switch ($action) {
         $db = pdo($config);
         $row = $db->query("SELECT state, updated_at FROM game_state WHERE id = 1")->fetch();
         if (!$row) respond(['status' => 'error', 'message' => 'State not initialized'], 500);
-        $ans_rows = $db->query("SELECT user_id, question_id, answer, created_at FROM current_answers ORDER BY question_id ASC")->fetchAll();
+
+        // Step 1: find last user_id in current_answers
+        $lastUser = $db->query("
+            SELECT user_id 
+            FROM current_answers 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ")->fetchColumn();
+
+        if (!$lastUser) {
+            respond(['status' => 'ok', 'state' => $row['state'], 'updated_at' => $row['updated_at'], 'answers' => []]);
+
+        }
+
+        // Step 2: get all answers for that user
+        $stmt = $db->prepare("
+            SELECT user_id, question_id, answer, created_at 
+            FROM current_answers 
+            WHERE user_id = :uid 
+            ORDER BY question_id ASC
+        ");
+        $stmt->execute([':uid' => $lastUser]);
+        $ans_rows = $stmt->fetchAll();
 
         respond(['status' => 'ok', 'state' => $row['state'], 'updated_at' => $row['updated_at'],'answers'=>$ans_rows]);
     }

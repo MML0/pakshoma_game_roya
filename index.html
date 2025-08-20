@@ -123,6 +123,7 @@ async function endGame() {
     document.getElementById("title").innerText = "بازی تمام شد 🎉";
     const content = document.getElementById("content");
     // content.innerHTML = `<button class="btn" onclick="startGame()">شروع دوباره</button>`;
+    await apiPost("set_state", {state:"ending"}, true);
     content.innerHTML = `<button class="btn" onclick="resetGame()">شروع دوباره</button>`;
 }
 
