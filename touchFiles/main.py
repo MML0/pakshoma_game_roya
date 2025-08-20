@@ -63,7 +63,7 @@ def onValueChange(channel, sampleIndex, val, prev):
     """
     This function is a callback that fetches data from an API and performs an action.
     """
-    winsound.Beep(1500, 30)
+    # winsound.Beep(1500, 30)
     
 
     # Call the reusable function for each endpoint
@@ -72,7 +72,8 @@ def onValueChange(channel, sampleIndex, val, prev):
     # You can now use the update_data variable here if the call was successful
     if update_data:
         # Example: process the data
-        print(f"Successfully fetched data from {update_url[-10:]}:")
+        # print(f"Successfully fetched data from {update_url[-10:]}:")
+        print('--------------')
         print(update_data)
         if update_data.get('state') == 'waiting':
             op('question_i').par.value0 = 0 # or whatever your default reset value is
@@ -85,7 +86,7 @@ def onValueChange(channel, sampleIndex, val, prev):
             op('playing').par.value0  = 1
             op('ending').par.value0  = 0        
             if update_data['answers']:
-                print(update_data['answers'][-1]['question_id'],'q_id')
+                # print(update_data['answers'][-1]['question_id'],'q_id')
                 op('question_i').par.value0  = update_data['answers'][-1]['question_id']
                 op('answer_choosed').par.value0  = update_data['answers'][-1]['answer']
                 file_name = ''
@@ -93,7 +94,7 @@ def onValueChange(channel, sampleIndex, val, prev):
                 for i in update_data['answers']:
                     index +=1
                     file_name += str(i['answer'])
-                    print(i['answer'])
+                    # print(i['answer'])
                 file_name +=  'x'*(question_count-index)+'.png'
                 print('photos/' +file_name)
                 op('q'+str(index)).par.file = 'photos/' +file_name
@@ -109,8 +110,8 @@ def onValueChange(channel, sampleIndex, val, prev):
     poll_data = fetch_api_data(poll_url)
     if poll_data:
         # Example: process the data
-        print(f"Successfully fetched data from {poll_url[-10:]}:")
-        print(poll_data)
+        # print(f"Successfully fetched data from {poll_url[-10:]}:")
+        # print(poll_data)
         my_null_chop = op('new_ans_subed')
         
         if poll_data.get('flag') == 1:
