@@ -107,7 +107,14 @@ switch ($action) {
         if (!$row) respond(['status' => 'error', 'message' => 'State not initialized'], 500);
         respond(['status' => 'ok', 'state' => $row['state'], 'updated_at' => $row['updated_at']]);
     }
+    case 'get_update': { // GET
+        $db = pdo($config);
+        $row = $db->query("SELECT state, updated_at FROM game_state WHERE id = 1")->fetch();
+        if (!$row) respond(['status' => 'error', 'message' => 'State not initialized'], 500);
+        $ans_rows = $db->query("SELECT user_id, question_id, answer, created_at FROM current_answers ORDER BY question_id ASC")->fetchAll();
 
+        respond(['status' => 'ok', 'state' => $row['state'], 'updated_at' => $row['updated_at'],'answers'=>$ans_rows]);
+    }
     case 'set_answer': { // POST
         // body: { user_id, qa: "1-2" } OR { user_id, question_id, answer }
         $user_id = trim((string)($input['user_id'] ?? ''));
@@ -173,10 +180,32 @@ switch ($action) {
         respond(['status' => 'ok', 'saved' => ['user_id'=>$user_id,'question_id'=>$question_id,'answer'=>$answer], 'round_id'=>$round_id ?? null]);
     }
 
-    case 'get_answers': { // GET — current (not yet archived)
+    case 'get_answers': { 
         $db = pdo($config);
-        $rows = $db->query("SELECT user_id, question_id, answer, created_at FROM current_answers ORDER BY question_id ASC")->fetchAll();
-        respond(['status'=>'ok','answers'=>$rows]);
+
+        // Step 1: find last user_id in current_answers
+        $lastUser = $db->query("
+            SELECT user_id 
+            FROM current_answers 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ")->fetchColumn();
+
+        if (!$lastUser) {
+            respond(['status' => 'ok', 'answers' => []]);
+        }
+
+        // Step 2: get all answers for that user
+        $stmt = $db->prepare("
+            SELECT user_id, question_id, answer, created_at 
+            FROM current_answers 
+            WHERE user_id = :uid 
+            ORDER BY question_id ASC
+        ");
+        $stmt->execute([':uid' => $lastUser]);
+        $rows = $stmt->fetchAll();
+
+        respond(['status' => 'ok', 'user_id' => $lastUser, 'answers' => $rows]);
     }
 
     case 'poll': { // GET — TouchDesigner one-shot
@@ -250,7 +279,8 @@ switch ($action) {
             }
 
             // Clear current answers
-            $db->exec("TRUNCATE TABLE current_answers");
+            // $db->exec("TRUNCATE TABLE current_answers");
+            $db->exec("DELETE FROM current_answers");
 
             // Close the round
             $db->exec("UPDATE rounds SET ended_at = CURRENT_TIMESTAMP WHERE id = {$round_id}");
@@ -263,7 +293,9 @@ switch ($action) {
 
             $db->commit();
         } catch (Throwable $e) {
-            $db->rollBack();
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             respond(['status'=>'error','message'=>'End game failed'], 500);
         }
 

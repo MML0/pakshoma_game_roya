@@ -87,11 +87,21 @@ function showQuestion(index) {
   document.getElementById("title").innerText = "سوال " + (index+1);
   const content = document.getElementById("content");
   content.innerHTML = `<p style="font-size:22px;">${q.q}</p>`;
+  const buttons = [];
   q.answers.forEach((ans,i)=>{
     const btn = document.createElement("button");
     btn.className = "btn";
     btn.innerText = ans;
-    btn.onclick = ()=>submitAnswer(index+1, i+1);
+    btn.onclick = () => {
+      // Disable all buttons when one is clicked
+      buttons.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = "0.6";
+        b.style.cursor = "not-allowed";
+      });
+      submitAnswer(index+1, i+1);
+    };
+    buttons.push(btn);
     content.appendChild(btn);
   });
 }
@@ -110,12 +120,16 @@ async function startGame() {
 }
 
 async function endGame() {
-//   await apiPost("end_game", {}, true);
-  document.getElementById("title").innerText = "بازی تمام شد 🎉";
-  const content = document.getElementById("content");
-  content.innerHTML = `<button class="btn" onclick="startGame()">شروع دوباره</button>`;
+    document.getElementById("title").innerText = "بازی تمام شد 🎉";
+    const content = document.getElementById("content");
+    // content.innerHTML = `<button class="btn" onclick="startGame()">شروع دوباره</button>`;
+    content.innerHTML = `<button class="btn" onclick="resetGame()">شروع دوباره</button>`;
 }
 
+async function resetGame(prams) {
+  await apiPost("end_game", {}, true);
+  location.reload();
+}
 document.getElementById("startBtn").addEventListener("click", startGame);
 </script>
 </body>
