@@ -81,9 +81,14 @@ async function continueGame() {
       currentQuestion = parseInt(lastAnswer.question_id, 10);
       userId = lastAnswer.user_id; // Set user ID to continue with the same session
       showQuestion(currentQuestion);
-      console.log(1212);
+      console.log('resume game after reload');
+
       
-    } 
+    } else if (data.state === "playing" && answersCount == 0) {
+      startGame()
+      console.log('start game after reload');
+      
+    }
 
   } else {
     // If API call fails, just start a new game
