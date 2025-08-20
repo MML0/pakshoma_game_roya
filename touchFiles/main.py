@@ -63,7 +63,7 @@ def onValueChange(channel, sampleIndex, val, prev):
     """
     This function is a callback that fetches data from an API and performs an action.
     """
-    winsound.Beep(1500, 50)
+    winsound.Beep(1500, 30)
     
 
     # Call the reusable function for each endpoint
@@ -75,25 +75,31 @@ def onValueChange(channel, sampleIndex, val, prev):
         print(f"Successfully fetched data from {update_url[-10:]}:")
         print(update_data)
         if update_data.get('state') == 'waiting':
+            op('question_i').par.value0 = 0 # or whatever your default reset value is
             op('waiting').par.value0  = 1
             op('playing').par.value0  = 0
             op('ending').par.value0  = 0
-        if update_data.get('state') == 'playing':
-            print(update_data['answers'][-1]['question_id'],'q_id')
-            op('question_i').par.value0  = update_data['answers'][-1]['question_id']
-            file_name = ''
-            index = 0
-            for i in update_data['answers']:
-                index +=1
-                file_name += str(i['answer'])
-                print(i['answer'])
-            file_name +=  'x'*(question_count-index)+'.png'
-            print('photos/' +file_name)
-            op('q'+str(index)).par.file = 'photos/' +file_name
 
+        if update_data.get('state') == 'playing':
             op('waiting').par.value0  = 0
             op('playing').par.value0  = 1
             op('ending').par.value0  = 0        
+            if update_data['answers']:
+                print(update_data['answers'][-1]['question_id'],'q_id')
+                op('question_i').par.value0  = update_data['answers'][-1]['question_id']
+                op('answer_choosed').par.value0  = update_data['answers'][-1]['answer']
+                file_name = ''
+                index = 0
+                for i in update_data['answers']:
+                    index +=1
+                    file_name += str(i['answer'])
+                    print(i['answer'])
+                file_name +=  'x'*(question_count-index)+'.png'
+                print('photos/' +file_name)
+                op('q'+str(index)).par.file = 'photos/' +file_name
+            else:
+                op('question_i').par.value0 = 0 # reset value
+
         if update_data.get('state') == 'ending':
             op('waiting').par.value0  = 0
             op('playing').par.value0  = 0

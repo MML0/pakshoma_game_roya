@@ -63,9 +63,43 @@ const questions = [
   {q:"سوال ۴ (متن نمونه)", answers:["بله", "خیر"]},
   {q:"سوال ۵ (متن نمونه)", answers:["گزینه یک", "گزینه دو"]}
 ];
+const MAX_QUESTIONS = questions.length;
+async function continueGame() {
+  // Fetch the current game state from the API
+  const data = await apiGet("get_update");
+  
+  if (data.status === "ok") {
+    const answersCount = data.answers.length;
+
+    // If the game is ending or all questions are answered, show the ending page
+    if (data.state === "ending" || answersCount >= MAX_QUESTIONS) {
+      endGame();
+    } 
+    // If the game is in the middle of being played, resume from the last question
+    else if (data.state === "playing" && answersCount > 0) {
+      const lastAnswer = data.answers[answersCount - 1];
+      currentQuestion = parseInt(lastAnswer.question_id, 10);
+      userId = lastAnswer.user_id; // Set user ID to continue with the same session
+      showQuestion(currentQuestion);
+      console.log(1212);
+      
+    } 
+
+  } else {
+    // If API call fails, just start a new game
+    console.log('api fail');
+    
+  }
+}
 
 function randomUserId() {
   return "user_" + Math.random().toString(36).substring(2,10);
+}
+
+async function apiGet(action) {
+  const url = API_URL + "?action=" + action;
+  const res = await fetch(url);
+  return res.json();
 }
 
 async function apiPost(action, body, admin=false) {
@@ -132,6 +166,7 @@ async function resetGame(prams) {
   location.reload();
 }
 document.getElementById("startBtn").addEventListener("click", startGame);
+window.onload = continueGame;
 </script>
 </body>
 </html>
