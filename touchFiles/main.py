@@ -105,6 +105,21 @@ def onValueChange(channel, sampleIndex, val, prev):
             op('waiting').par.value0  = 0
             op('playing').par.value0  = 0
             op('ending').par.value0  = 1
+            if update_data['answers']:
+                # print(update_data['answers'][-1]['question_id'],'q_id')
+                op('question_i').par.value0  = update_data['answers'][-1]['question_id']
+                op('answer_choosed').par.value0  = update_data['answers'][-1]['answer']
+                file_name = ''
+                index = 0
+                for i in update_data['answers']:
+                    index +=1
+                    file_name += str(i['answer'])
+                    # print(i['answer'])
+                file_name +=  'x'*(question_count-index)+'.png'
+                print('photos/' +file_name)
+                op('q'+str(index)).par.file = 'photos/' +file_name
+            else:
+                op('question_i').par.value0 = 0 # reset value
         pass
 
     poll_data = fetch_api_data(poll_url)
