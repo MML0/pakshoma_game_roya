@@ -144,7 +144,7 @@ switch ($action) {
 
         if (isset($input['qa'])) {
             $qa = (string)$input['qa'];
-            if (!preg_match('/^\s*(\d+)\s*-\s*([12])\s*$/', $qa, $m)) {
+            if (!preg_match('/^\s*(\d+)\s*-\s*([1234])\s*$/', $qa, $m)) {
                 respond(['status' => 'error', 'message' => 'qa must look like \"2-1\"'], 422);
             }
             $question_id = (int)$m[1];
