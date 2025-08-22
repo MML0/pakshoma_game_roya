@@ -203,17 +203,20 @@ Each part corresponds to one of the following **questions**:
  c) نور زرد و گرم
  d) ترکیبی
 
-5. کدام فضای اضافی را در خانه خود می‌پسندید؟
- a) حیاط بزرگ
- b) تراس وسیع
- c) اتاق مطالعه
- d) استودیوی هنری
+5. نورپردازی داخلی خونه‌ت چطور باشه؟
+ a) لوستر یا چراغ آویز تزئینی
+ b) چراغ‌های سقفی ساده
+ c) آباژور و نور نقطه‌ای
+ d) نور مخفی و مدرن
+
  
 ### Important structural rule (applies to ALL outputs):
 - The **camera always looks straight at the front wall**.  
 - **Front wall** = full glass, divided into **3 panels**.  
 - **Left and right walls** = solid walls meeting the glass wall at right angles.  
 - This structural setup is constant and must always appear in the "house" or "architecture" part of the JSON output, regardless of the chosen answers.
+- The chosen answers must **strongly influence the final descriptive text**, adding corresponding **furniture, décor, materials, colors, and lighting**.  
+- The final output should read like a **rich scene description** suitable for ComfyUI image generation, with no JSON format.
 
 ---
 
@@ -363,7 +366,14 @@ Lighting comes from hidden modern fixtures, spreading a soft glow across walls a
 
 
 # loop thorow all possible combinations 
-
+ans = {
+    1: ["کوهستان", "دل جنگل", "وسط صحرا", "ساحل دریا", "مشخص نیست"],
+    2: ["رنگارنگ و پر جزییات", "سنتی و نوستالژیک", "مینیمال و خلوت", "مدرن و تکنولوژیک", "مشخص نیست"],
+    3: ["سرامیک", "چوب و بتن", "پارچه و توری", "کاه گل", "مشخص نیست"],
+    4: ["سینما", "سفالگری", "موسیقی", "ادبیات", "مشخص نیست"],
+    5: ["نور طبیعی زیاد", "چراغ‌های سقفی ساده", "آباژور و نور نقطه‌ای", "نور مخفی و مدرن", "مشخص نیست"]
+}
+abc_place_holder = ['0' , 'a','b','c','d']
 #comfi ui 
 prompt = f"""
 
@@ -381,6 +391,9 @@ The description should always include:
 - **Front wall** = full glass, divided into **3 panels**.  
 - **Left and right walls** = solid walls meeting the glass wall at right angles.  
 - This structural setup must always be described in the scene.
+
+- The chosen answers must **strongly influence the final descriptive text**, adding corresponding **furniture, décor, materials, colors, and lighting**.  
+- The final output should read like a **rich scene description** suitable for ComfyUI image generation, with no JSON format.
 
 ---
 
@@ -411,7 +424,7 @@ Each part corresponds to one of the following **questions**:
  d) ادبیات
 
 5. نورپردازی داخلی خونه‌ت چطور باشه؟
- a) نور طبیعی زیاد
+ a) لوستر یا چراغ آویز تزئینی
  b) چراغ‌های سقفی ساده
  c) آباژور و نور نقطه‌ای
  d) نور مخفی و مدرن
@@ -438,15 +451,85 @@ Lighting comes from hidden modern fixtures, spreading a soft glow across walls a
 ### >>>> important: only raw text, no JSON, no lists
 """
 
-ans = {
-    1: ["کوهستان", "دل جنگل", "وسط صحرا", "ساحل دریا", "مشخص نیست"],
-    2: ["رنگارنگ و پر جزییات", "سنتی و نوستالژیک", "مینیمال و خلوت", "مدرن و تکنولوژیک", "مشخص نیست"],
-    3: ["سرامیک", "چوب و بتن", "پارچه و توری", "کاه گل", "مشخص نیست"],
-    4: ["سینما", "سفالگری", "موسیقی", "ادبیات", "مشخص نیست"],
-    5: ["نور طبیعی زیاد", "چراغ‌های سقفی ساده", "آباژور و نور نقطه‌ای", "نور مخفی و مدرن", "مشخص نیست"]
-}
+for i1 in range(4):
+    for i2 in range(5):
+        for i3 in range(5):
+            for i4 in range(5):
+                for i5 in range(5):
+                    prompt = f"""
 
-print()
-print()
-print()
-print((chat(prompt)))
+                    You are tasked with generating a raw descriptive scene of a house for AI image generation.  
+
+                    The description should always include:  
+                    - A clear **environment** (Q1).  
+                    - The **atmosphere / mood** of the space (Q2).  
+                    - The **materials** used for the house (Q3).  
+                    - An artistic or cultural touch (Q4).  
+                    - The **lighting style** of the house (Q5).  
+
+                    ### Important structural rule (applies to ALL outputs):
+                    - The **camera always looks straight at the front wall**.  
+                    - **Front wall** = full glass, divided into **3 panels**.  
+                    - **Left and right walls** = solid walls meeting the glass wall at right angles.  
+                    - This structural setup must always be described in the scene.
+
+                    ---
+
+                    Each part corresponds to one of the following **questions**:
+
+                    1. کجا برات الهام بخش تره؟
+                    a) کوهستان
+                    b) دل جنگل
+                    c) وسط صحرا
+                    d) ساحل دریا
+
+                    2. کدوم فضا آرامش بیشتری بهت میده؟
+                    a) رنگارنگ و پر جزییات
+                    b) سنتی و نوستالژیک
+                    c) مینیمال و خلوت
+                    d) مدرن و تکنولوژیک
+
+                    3. کدوم متریال رو ترجیح میدی؟!
+                    a) سرامیک
+                    b) چوب و بتن
+                    c) پارچه و توری
+                    d) کاه گل
+
+                    4. هنر مورد علاقه‌ات چیه؟!
+                    a) سینما
+                    b) سفالگری
+                    c) موسیقی
+                    d) ادبیات
+
+                    5. نورپردازی داخلی خونه‌ت چطور باشه؟
+                    a) نور طبیعی زیاد
+                    b) چراغ‌های سقفی ساده
+                    c) آباژور و نور نقطه‌ای
+                    d) نور مخفی و مدرن
+
+                    ---
+
+                    ### Randomly chosen answers (for this run):
+                    1 → {abc_place_holder[i1]}) {کوهستان}  
+                    2 → {abc_place_holder[i1]}) سنتی و نوستالژیک  
+                    3 → {abc_place_holder[i1]}) چوب و بتن  
+                    4 → {abc_place_holder[i1]}) موسیقی  
+                    5 → {abc_place_holder[i1]}) نور مخفی و مدرن  
+
+                    ---
+
+                    ### Example raw text output: be creative and immersive
+
+                    A nostalgic mountain house built with wood and concrete, sitting among pine trees and rocky hills.  
+                    The front wall is a full glass surface divided into three panels, while the left and right walls are solid and connect at right angles.  
+                    Inside, the space feels traditional and warm, with stone flooring, wooden beams, and rustic textures.  
+                    The atmosphere is inspired by music — a piano near the glass wall reflects soft light, shelves of vinyl records line the wall, and the space hums with creative energy.  
+                    Lighting comes from hidden modern fixtures, spreading a soft glow across walls and ceiling, blending warmth with elegance.  
+
+                    ### >>>> important: only raw text, no JSON, no lists
+                    """
+
+
+
+
+                    print((chat(prompt)))
