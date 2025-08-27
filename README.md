@@ -41,7 +41,7 @@ The game explores the boundaries of **AI creativity, interactive storytelling, a
 ---
 ## 🌟 Features
 
-📷 1300+ AI-generated photos
+📷 300+ AI-generated photos
 🤖 GPT-powered prompt generation
 🎨 Flux + SDXL pipelines for photorealistic and artistic imagery
 🕹️ Interactive branching narrative
