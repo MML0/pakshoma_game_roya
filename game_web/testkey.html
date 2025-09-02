@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KioskBoard 2.3.0 Test</title>
+  <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css">
+</head>
+<body>
+
+  <input 
+    class="js-kioskboard-input"
+    data-kioskboard-type="numpad"
+    data-kioskboard-placement="bottom"
+    placeholder="Your Number"
+  />
+
+  <script src="dist/kioskboard-2.3.0.min.js"></script>
+  <script>
+    // Init with empty keys.json
+    KioskBoard.init({
+      keysJsonUrl: 'keys.json',
+      language: 'en',
+      theme: 'light'
+    });
+    KioskBoard.run('.js-kioskboard-input');
+
+    // Attach to input
+  </script>
+
+</body>
+</html>

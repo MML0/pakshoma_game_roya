@@ -4,17 +4,65 @@ const persianKeys = [
     { '0': 'گ', '1': 'ک', '2': 'م', '3': 'ن', '4': 'ت', '5': 'ا', '6': 'ل', '7': 'ب', '8': 'ی', '9': 'س', '10': 'ش' },
     { '0': '.', '1': '،', '2': 'و', '3': 'پ', '4': 'د', '5': 'ذ', '6': 'ر', '7': 'ز', '8': 'ط', '9': 'ظ' }
 ];
-
-// Run KioskBoard on both inputs
-KioskBoard.run('#fullName', {
-    language: 'fa', theme: 'flat', allowRealKeyboard: false, keysArrayOfObjects: persianKeys
+const numpadKeys = [
+  { '0': '3', '1': '2', '2': '1' },
+  { '0': '6', '1': '5', '2': '4' },
+  { '0': '9', '1': '8', '2': '7' },
+  {
+    '0': '0'
+  }
+];
+KioskBoard.init({
+  keysArrayOfObjects: persianKeys,
+  keysNumpadArrayOfNumbers: null,  // 🔴 اینجا numpad غیرفعاله
 });
 
-setTimeout(() => {
-    const input = document.getElementById('fullName');
-    input.focus();
-}, 500);
+KioskBoard.run('#phoneNumber', {
+  language: 'fa',
+  theme: 'flat',
+  allowRealKeyboard: true,
+  keysArrayOfObjects: numpadKeys, 
+  keysNumpadArrayOfNumbers: null   // 🔴 دوباره null تا numpad نیاد
+});
 
+KioskBoard.run('#fullName', {
+  language: 'fa',
+  theme: 'flat',
+  allowRealKeyboard: true,
+  keysArrayOfObjects: persianKeys, 
+  keysNumpadArrayOfNumbers: null   // 🔴 اینجا هم null
+});
+
+const phoneInput = document.getElementById('phoneNumber');
+const NameInput = document.getElementById('fullName');
+
+function hideKioskboardParts() {
+  setTimeout(() => {
+    const topRow = document.querySelector('.kioskboard-row-top');
+    if (topRow) {
+      topRow.style.setProperty("display", "none", "important");
+    }
+
+    const spaceKey = document.querySelector('#KioskBoard-VirtualKeyboard .kioskboard-row-bottom span.kioskboard-key-space');
+    if (spaceKey) {
+      spaceKey.style.setProperty("display", "none", "important");
+    }
+  }, 100);
+}
+function hideKioskboardnum() {
+  setTimeout(() => {
+    const topRow = document.querySelector('.kioskboard-row-top');
+    if (topRow) {
+      topRow.style.setProperty("display", "none", "important");
+    }
+  }, 10);
+}
+
+phoneInput.addEventListener('focus', hideKioskboardParts);
+phoneInput.addEventListener('click', hideKioskboardParts);
+
+NameInput.addEventListener('focus', hideKioskboardnum);
+NameInput.addEventListener('click', hideKioskboardnum);
 
 
 
@@ -143,6 +191,11 @@ async function startGame() {
     showQuestion(currentQuestion);
 }
 
+async function resetGame (prams) {
+    await apiPost("end_game", {}, true);
+    location.reload();
+}
+window.resetGame = resetGame;
 async function endGame() {
     document.getElementById("title").innerText = "بازی تمام شد 🎉";
     const content = document.getElementById("content");
@@ -151,10 +204,7 @@ async function endGame() {
     content.innerHTML = `<button class="btn" onclick="resetGame()">شروع دوباره</button>`;
 }
 
-async function resetGame(prams) {
-    await apiPost("end_game", {}, true);
-    location.reload();
-}
+
 document.getElementById("startBtn").addEventListener("click", startGame);
 window.onload = continueGame;
 
