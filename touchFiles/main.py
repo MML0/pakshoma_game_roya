@@ -11,7 +11,7 @@ import winsound
 import time
 update_url = "http://127.0.0.1:3000/backend/data.php?action=get_update"
 poll_url = "http://127.0.0.1:3000/backend/data.php?action=poll"
-question_count = 5
+question_count = 4
 
 
 def fetch_api_data(endpoint):

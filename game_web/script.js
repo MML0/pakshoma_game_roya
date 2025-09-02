@@ -59,10 +59,10 @@ function hideKioskboardnum() {
 }
 
 phoneInput.addEventListener('focus', hideKioskboardParts);
-phoneInput.addEventListener('click', hideKioskboardParts);
+// phoneInput.addEventListener('click', hideKioskboardParts);
 
 NameInput.addEventListener('focus', hideKioskboardnum);
-NameInput.addEventListener('click', hideKioskboardnum);
+// NameInput.addEventListener('click', hideKioskboardnum);
 
 
 
@@ -77,24 +77,20 @@ let currentQuestion = 0;
 
 const questions = [
     {
-        q: "دوست داری خونه‌ت تو چه جور طبیعتی قرار داشته باشه؟",
-        answers: ["کنار دریا", "وسط جنگل", "نزدیک کوه", "در شهر"]
+        q: "کجا برات الهام‌بخش‌تره؟",
+        answers: ["کوهستان", "دل جنگل", "شهر", "ساحل و دریا"]
     },
     {
-        q: "چه آب و هوایی برات لذتبخش‌تره؟",
-        answers: ["آفتابی و گرم", "خنک و بارونی", "سرد و برفی", "ملایم و معتدل"]
+        q: "کدوم متریال رو ترجیح میدی؟",
+        answers: ["سرامیک", "چوب و پارکت", "موکت", "سنگ"]
     },
     {
-        q: "بیشتر به چه فضاهایی علاقه‌مندی؟",
-        answers: ["مدرن و تکنولوژیک", "سنتی و نوستالژیک", "مینیمال و ساده", "لوکس و شیک"]
+        q: "مبلمان مورد علاقت چه سبکیه؟",
+        answers: ["رویال", "کلاسیک", "راحتی", "مدرن"]
     },
     {
-        q: "کدام نوع رنگ در دکوراسیون خانه را ترجیح می‌دهی؟",
-        answers: ["رنگ‌های روشن", "رنگ‌های تیره", "رنگ‌های طبیعی و خاکی", "رنگ‌های شاد و متنوع"]
-    },
-    {
-        q: "چه نوع نورپردازی‌ای برای خانه دوست داری؟",
-        answers: ["نور طبیعی فراوان", "چراغ‌های ملایم و گرم", "چراغ‌های مدرن و LED", "ترکیبی از همه"]
+        q: "هنر مورد علاقت چیه؟",
+        answers: ["سینما", "سفالگری", "موسیقی", "ادبیات"]
     }
 ];
 

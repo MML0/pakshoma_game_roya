@@ -12,6 +12,13 @@
  *  - POST  ?action=end_game&admin_password=...          → archives current answers and resets for next player; sets state to "waiting"
  *  - POST  ?action=reset_round&admin_password=...       → force-clear current answers & flag; sets state to "waiting"
  *
+ *  - POST  ?action=register_user                 → body: { fullName, phoneNumber, user_id? } → create/update user
+ *  - GET   ?action=get_user&user_id=...         → return user profile
+ *
+ *  - POST  ?action=save_response                 → body: { user_id, question_id, answer } (history + current + td_signal)
+ *  - POST  ?action=save_responses                → body: { user_id, responses:[{question_id,answer},...] }
+ *  - POST  ?action=set_answer                    → (compat) { user_id, qa:"2-1" } or { question_id, answer }
+ *
  * Notes:
  *  - Single user at a time (global session). We still store user_id (you generate it client-side).
  *  - Each question has 2 answers; we accept "qa" like "2-1" (q=2, a=1).
@@ -78,6 +85,168 @@ if (!is_array($input)) $input = [];
 
 // --- Actions ---
 switch ($action) {
+
+    // -------------- NEW: register_user ----------------
+    case 'register_user': { // POST { fullName, phoneNumber, user_id? }
+        $fullName = trim((string)($input['fullName'] ?? ''));
+        $phone    = trim((string)($input['phoneNumber'] ?? ''));
+        $user_id  = trim((string)($input['user_id'] ?? ''));
+
+        if ($fullName === '' || $phone === '') {
+            respond(['status'=>'error','message'=>'fullName and phoneNumber required'], 422);
+        }
+
+        if ($user_id === '') {
+            // generate server-side id if none provided
+            $user_id = 'user_' . bin2hex(random_bytes(6));
+        }
+
+        $db = pdo($config);
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO users (user_id, full_name, phone)
+                VALUES (:uid, :name, :phone)
+                ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), phone = VALUES(phone), updated_at = CURRENT_TIMESTAMP
+            ");
+            $stmt->execute([':uid'=>$user_id, ':name'=>$fullName, ':phone'=>$phone]);
+        } catch (Throwable $e) {
+            respond(['status'=>'error','message'=>'Failed to register user'], 500);
+        }
+
+        respond(['status'=>'ok','user_id'=>$user_id, 'fullName'=>$fullName, 'phone'=>$phone]);
+    }
+
+    // -------------- NEW: save single response ----------------
+    case 'save_response': { // POST { user_id, question_id, answer }
+        $user_id = trim((string)($input['user_id'] ?? ''));
+        $question_id = isset($input['question_id']) ? (int)$input['question_id'] : null;
+        $answer = isset($input['answer']) ? (int)$input['answer'] : null;
+
+        if ($user_id === '' || !$question_id || !in_array($answer, [1,2,3,4], true)) {
+            respond(['status'=>'error','message'=>'user_id, question_id and valid answer required'], 422);
+        }
+
+        $db = pdo($config);
+
+        // Keep game in playing state logic as before
+        $state = $db->query("SELECT state FROM game_state WHERE id = 1")->fetchColumn();
+        if ($state !== 'playing') {
+            respond(['status' => 'error', 'message' => 'Game is not in playing state'], 409);
+        }
+
+        $db->beginTransaction();
+        try {
+            // Insert into user_responses (no uniqueness constraint here: history)
+            $stmt = $db->prepare("
+                INSERT INTO user_responses (user_id, question_id, answer)
+                VALUES (:u, :q, :a)
+            ");
+            $stmt->execute([':u'=>$user_id, ':q'=>$question_id, ':a'=>$answer]);
+
+            // Upsert current_answers for live game use
+            $stmt2 = $db->prepare("
+                INSERT INTO current_answers (user_id, question_id, answer)
+                VALUES (:u, :q, :a)
+                ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), answer = VALUES(answer), created_at = CURRENT_TIMESTAMP
+            ");
+            $stmt2->execute([':u'=>$user_id, ':q'=>$question_id, ':a'=>$answer]);
+
+            // Set one-shot signal for TouchDesigner (last payload)
+            $stmt3 = $db->prepare("
+                UPDATE td_signal
+                SET flag = 1, user_id = :u, question_id = :q, answer = :a, updated_at = CURRENT_TIMESTAMP
+                WHERE id = 1
+            ");
+            $stmt3->execute([':u'=>$user_id, ':q'=>$question_id, ':a'=>$answer]);
+
+            // Ensure there is an open round
+            $open = $db->query("SELECT id FROM rounds WHERE ended_at IS NULL ORDER BY id DESC LIMIT 1 FOR UPDATE")->fetch();
+            if (!$open) {
+                $db->exec("INSERT INTO rounds (started_at) VALUES (CURRENT_TIMESTAMP)");
+                $round_id = (int)$db->lastInsertId();
+            } else {
+                $round_id = (int)$open['id'];
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            respond(['status'=>'error','message'=>'Failed to save response'], 500);
+        }
+
+        respond(['status'=>'ok','saved'=>['user_id'=>$user_id,'question_id'=>$question_id,'answer'=>$answer],'round_id'=>$round_id ?? null]);
+    }
+
+    // -------------- NEW: save multiple responses ----------------
+    case 'save_responses': { // POST { user_id, responses: [{question_id,answer}, ...] }
+        $user_id = trim((string)($input['user_id'] ?? ''));
+        $responses = $input['responses'] ?? null;
+        if ($user_id === '' || !is_array($responses) || count($responses) === 0) {
+            respond(['status'=>'error','message'=>'user_id and responses[] required'], 422);
+        }
+
+        $db = pdo($config);
+
+        // Ensure playing
+        $state = $db->query("SELECT state FROM game_state WHERE id = 1")->fetchColumn();
+        if ($state !== 'playing') {
+            respond(['status' => 'error', 'message' => 'Game is not in playing state'], 409);
+        }
+
+        $db->beginTransaction();
+        try {
+            // Ensure open round
+            $open = $db->query("SELECT id FROM rounds WHERE ended_at IS NULL ORDER BY id DESC LIMIT 1 FOR UPDATE")->fetch();
+            if (!$open) {
+                $db->exec("INSERT INTO rounds (started_at) VALUES (CURRENT_TIMESTAMP)");
+                $round_id = (int)$db->lastInsertId();
+            } else {
+                $round_id = (int)$open['id'];
+            }
+
+            $insertResp = $db->prepare("INSERT INTO user_responses (user_id, question_id, answer) VALUES (:u, :q, :a)");
+            $upsertCurrent = $db->prepare("
+                INSERT INTO current_answers (user_id, question_id, answer)
+                VALUES (:u, :q, :a)
+                ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), answer = VALUES(answer), created_at = CURRENT_TIMESTAMP
+            ");
+            $lastPayload = null;
+            foreach ($responses as $r) {
+                $q = isset($r['question_id']) ? (int)$r['question_id'] : null;
+                $a = isset($r['answer']) ? (int)$r['answer'] : null;
+                if (!$q || !in_array($a, [1,2,3,4], true)) continue; // skip invalid
+                $insertResp->execute([':u'=>$user_id, ':q'=>$q, ':a'=>$a]);
+                $upsertCurrent->execute([':u'=>$user_id, ':q'=>$q, ':a'=>$a]);
+                $lastPayload = ['question_id'=>$q,'answer'=>$a];
+            }
+
+            // set td_signal as last payload if any
+            if ($lastPayload) {
+                $stmt = $db->prepare("UPDATE td_signal SET flag = 1, user_id = :u, question_id = :q, answer = :a, updated_at = CURRENT_TIMESTAMP WHERE id = 1");
+                $stmt->execute([':u'=>$user_id, ':q'=>$lastPayload['question_id'], ':a'=>$lastPayload['answer']]);
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            respond(['status'=>'error','message'=>'Failed to save responses'], 500);
+        }
+
+        respond(['status'=>'ok','saved_count'=>count($responses),'round_id'=>$round_id ?? null]);
+    }
+
+    // -------------- NEW: get_user ----------------
+    case 'get_user': { // GET ?user_id=...
+        $user_id = trim((string)($_GET['user_id'] ?? ''));
+        if ($user_id === '') respond(['status'=>'error','message'=>'user_id required'], 422);
+        $db = pdo($config);
+        $stmt = $db->prepare("SELECT user_id, full_name, phone, created_at, updated_at FROM users WHERE user_id = :u");
+        $stmt->execute([':u'=>$user_id]);
+        $row = $stmt->fetch();
+        if (!$row) respond(['status'=>'error','message'=>'User not found'], 404);
+        respond(['status'=>'ok','user'=>$row]);
+    }
+
 
 
     case 'set_state': { // POST (admin)
