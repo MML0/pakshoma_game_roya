@@ -47,7 +47,7 @@ function hideKioskboardParts() {
     if (spaceKey) {
       spaceKey.style.setProperty("display", "none", "important");
     }
-  }, 100);
+  }, 40);
 }
 function hideKioskboardnum() {
   setTimeout(() => {
@@ -63,6 +63,8 @@ phoneInput.addEventListener('click', hideKioskboardParts);
 
 NameInput.addEventListener('focus', hideKioskboardnum);
 NameInput.addEventListener('click', hideKioskboardnum);
+
+
 
 
 
@@ -188,6 +190,7 @@ async function startGame() {
     userId = randomUserId();
     currentQuestion = 0;
     await apiPost("set_state", { state: "playing" }, true);
+    document.getElementById("registerForm").style.display = "none";
     showQuestion(currentQuestion);
 }
 

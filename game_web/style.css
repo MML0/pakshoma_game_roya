@@ -56,3 +56,9 @@ body {
   text-align: center !important;
   margin: 3px !important;
 }
+/* Change animation/transition duration for KioskBoard */
+#KioskBoard-VirtualKeyboard,
+#KioskBoard-VirtualKeyboard * {
+  transition-duration: 0.9s !important;   /* shorter */
+  animation-duration: 0.9s !important;    /* shorter */
+}
