@@ -1,68 +1,68 @@
 document.addEventListener("DOMContentLoaded", function () {
-const persianKeys = [
-    { '0': 'چ', '1': 'ج', '2': 'ح', '3': 'خ', '4': 'ه', '5': 'ع', '6': 'غ', '7': 'ف', '8': 'ق', '9': 'ث', '10': 'ص', '11': 'ض' },
-    { '0': 'گ', '1': 'ک', '2': 'م', '3': 'ن', '4': 'ت', '5': 'ا', '6': 'ل', '7': 'ب', '8': 'ی', '9': 'س', '10': 'ش' },
-    { '0': '.', '1': '،', '2': 'و', '3': 'پ', '4': 'د', '5': 'ذ', '6': 'ر', '7': 'ز', '8': 'ط', '9': 'ظ' }
-];
-const numpadKeys = [
-  { '0': '3', '1': '2', '2': '1' },
-  { '0': '6', '1': '5', '2': '4' },
-  { '0': '9', '1': '8', '2': '7' },
-  {
-    '0': '0'
-  }
-];
-KioskBoard.init({
-  keysArrayOfObjects: persianKeys,
-  keysNumpadArrayOfNumbers: null,  // 🔴 اینجا numpad غیرفعاله
-});
+// const persianKeys = [
+//     { '0': 'چ', '1': 'ج', '2': 'ح', '3': 'خ', '4': 'ه', '5': 'ع', '6': 'غ', '7': 'ف', '8': 'ق', '9': 'ث', '10': 'ص', '11': 'ض' },
+//     { '0': 'گ', '1': 'ک', '2': 'م', '3': 'ن', '4': 'ت', '5': 'ا', '6': 'ل', '7': 'ب', '8': 'ی', '9': 'س', '10': 'ش' },
+//     { '0': '.', '1': '،', '2': 'و', '3': 'پ', '4': 'د', '5': 'ذ', '6': 'ر', '7': 'ز', '8': 'ط', '9': 'ظ' }
+// ];
+// const numpadKeys = [
+//   { '0': '3', '1': '2', '2': '1' },
+//   { '0': '6', '1': '5', '2': '4' },
+//   { '0': '9', '1': '8', '2': '7' },
+//   {
+//     '0': '0'
+//   }
+// ];
+// KioskBoard.init({
+//   keysArrayOfObjects: persianKeys,
+//   keysNumpadArrayOfNumbers: null,  // 🔴 اینجا numpad غیرفعاله
+// });
 
-KioskBoard.run('#phoneNumber', {
-  language: 'fa',
-  theme: 'flat',
-  allowRealKeyboard: true,
-  keysArrayOfObjects: numpadKeys, 
-  keysNumpadArrayOfNumbers: null   // 🔴 دوباره null تا numpad نیاد
-});
+// KioskBoard.run('#phoneNumber', {
+//   language: 'fa',
+//   theme: 'flat',
+//   allowRealKeyboard: true,
+//   keysArrayOfObjects: numpadKeys, 
+//   keysNumpadArrayOfNumbers: null   // 🔴 دوباره null تا numpad نیاد
+// });
 
-KioskBoard.run('#fullName', {
-  language: 'fa',
-  theme: 'flat',
-  allowRealKeyboard: true,
-  keysArrayOfObjects: persianKeys, 
-  keysNumpadArrayOfNumbers: null   // 🔴 اینجا هم null
-});
+// KioskBoard.run('#fullName', {
+//   language: 'fa',
+//   theme: 'flat',
+//   allowRealKeyboard: true,
+//   keysArrayOfObjects: persianKeys, 
+//   keysNumpadArrayOfNumbers: null   // 🔴 اینجا هم null
+// });
 
-const phoneInput = document.getElementById('phoneNumber');
-const NameInput = document.getElementById('fullName');
+// const phoneInput = document.getElementById('phoneNumber');
+// const NameInput = document.getElementById('fullName');
 
-function hideKioskboardParts() {
-  setTimeout(() => {
-    const topRow = document.querySelector('.kioskboard-row-top');
-    if (topRow) {
-      topRow.style.setProperty("display", "none", "important");
-    }
+// function hideKioskboardParts() {
+//   setTimeout(() => {
+//     const topRow = document.querySelector('.kioskboard-row-top');
+//     if (topRow) {
+//       topRow.style.setProperty("display", "none", "important");
+//     }
 
-    const spaceKey = document.querySelector('#KioskBoard-VirtualKeyboard .kioskboard-row-bottom span.kioskboard-key-space');
-    if (spaceKey) {
-      spaceKey.style.setProperty("display", "none", "important");
-    }
-  }, 40);
-}
-function hideKioskboardnum() {
-  setTimeout(() => {
-    const topRow = document.querySelector('.kioskboard-row-top');
-    if (topRow) {
-      topRow.style.setProperty("display", "none", "important");
-    }
-  }, 10);
-}
+//     const spaceKey = document.querySelector('#KioskBoard-VirtualKeyboard .kioskboard-row-bottom span.kioskboard-key-space');
+//     if (spaceKey) {
+//       spaceKey.style.setProperty("display", "none", "important");
+//     }
+//   }, 40);
+// }
+// function hideKioskboardnum() {
+//   setTimeout(() => {
+//     const topRow = document.querySelector('.kioskboard-row-top');
+//     if (topRow) {
+//       topRow.style.setProperty("display", "none", "important");
+//     }
+//   }, 10);
+// }
 
-phoneInput.addEventListener('focus', hideKioskboardParts);
-// phoneInput.addEventListener('click', hideKioskboardParts);
+// phoneInput.addEventListener('focus', hideKioskboardParts);
+// // phoneInput.addEventListener('click', hideKioskboardParts);
 
-NameInput.addEventListener('focus', hideKioskboardnum);
-// NameInput.addEventListener('click', hideKioskboardnum);
+// NameInput.addEventListener('focus', hideKioskboardnum);
+// // NameInput.addEventListener('click', hideKioskboardnum);
 
 
 
