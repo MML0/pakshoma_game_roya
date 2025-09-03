@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>بازی پرسش و پاسخ</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css">
-    <script src="dist/kioskboard-2.3.0.min.js"></script>
-    
-    <script src="script.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1 id="title">بازی پرسش و پاسخ</h1>
-    <!-- Registration Form -->
-    <div id="registerForm">
-      <input type="text" id="fullName" placeholder="نام و نام خانوادگی" class="form-input" />
-      <input  
-        type="text" id="phoneNumber" placeholder="شماره موبایل" class="form-input " 
-      />
-    </div>
-    <div id="content">
-      <button class="btn" id="startBtn">شروع بازی</button>
-    </div>
-  </div>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css" />
+    <!-- <script src="dist/kioskboard-2.3.0.min.js"></script> -->
 
-</body>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="title">بازی پرسش و پاسخ</h1>
+      <!-- Registration Form -->
+      <div id="registerForm">
+        <input type="text" id="fullName" placeholder="نام و نام خانوادگی"
+          class="form-input" autocomplete="off" />
+        <input type="number" id="phoneNumber" placeholder="شماره موبایل"
+        class="form-input" autocomplete="off" />
+      </div>
+      <div id="content">
+        <button class="btn" id="startBtn">شروع بازی</button>
+      </div>
+    </div>
+  </body>
 </html>
