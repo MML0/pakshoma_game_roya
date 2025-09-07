@@ -25,20 +25,24 @@ h1 {
 }
 .btn {
   font-family: "AbarLow-Black", system-ui, "Segoe UI", Roboto, "Noto Naskh Arabic", sans-serif;
+  font-weight: 900;  
   display: block;
   width: 100%;
   padding: 15px;
-  margin: 10px 0;
-  font-size: 30px;
+  margin: 0px 20px;
+  font-size: 40px;
+  text-shadow:
+    0px 0px 5px #308C89,
+    0px 0px 5px #308C89; 
   border: none;
-  border-radius: 12px;
+  /* border-radius: 12px; */
   cursor: pointer;
   background: #2196f3;
   color: white;
   transition: background 0.3s;
 }
 .btn:hover {
-  background: #1976d2;
+  /* background: #1976d2; */
 }
 .hidden {
   display: none;
@@ -229,16 +233,72 @@ body {
 /* ظاهر اصلی فرم */
 .container {
   width: 70%;        /* عرض 70% صفحه */
-  max-width: 600px;  /* حداکثر عرض */
+  max-width: 1200px;  /* حداکثر عرض */
   padding: 50px 40px;
   height: auto;      /* ارتفاع متناسب با محتوا */
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.6); /* شفافیت */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: rgba(255, 255, 255, 0);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.0);
   text-align: center;
 }
+.question-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
 
+.question-image img {
+  max-width: 100%;
+  height: 500px;
+  border-radius: 12px;
+  display: block;
+}
 
+.answers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2×2 */
+  gap: 70px 250px;
+  width: 100%;
+  max-width: 720px; /* tweak if needed */
+}
+
+.btn.answer-btn {
+  background-image: url("img/questions/btn_bg.png");
+background: url("img/questions/btn_bg.png") no-repeat center / contain;
+  width: 100%;
+  height: 90px;
+
+}
+
+.end_btn {
+  background: url("img/ending/007-Finish-PlayAgain.png") no-repeat center / contain;
+  width:350px;
+  height: 140px;
+
+}
+.end-wrap{
+  min-height: 70vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  text-align:center;
+}
+
+.end-center{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center; /* centers the image */
+}
+
+.end-img{
+  max-width: clamp(220px, 45vw, 520px);
+  height:auto;
+  display:block;
+}
 
 .form-input {
     width: 520px;         /* اندازه عکس */

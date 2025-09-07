@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <title>بازی پرسش و پاسخ</title>
+    <title>pakshoma interactive</title>
     <link rel="stylesheet" href="style.css" />
     <!-- <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css" /> -->
     <!-- <script src="dist/kioskboard-2.3.0.min.js"></script> -->
@@ -17,14 +17,17 @@
     <!-- register page -->
     <div id="secondScreen" class="second-screen hidden" style="background-image: url('img/Login/Login_back.png');">
       <img src="img/Login/Input.png" alt="عکس اضافه" class="extra-img">  
-      <input type="text" id="fullName" class="form-input">
-      <input type="number" id="phoneNumber"  class="form-input " />
+      <input type="text" id="fullName" class="form-input" required >
+      <input type="number" id="phoneNumber"  class="form-input " required >
       <img src="img/Login/Rigester.png" alt="شروع" id="rigesterBtn" class="Rigester">
     </div>
 
     <div class="container hidden" id="container" style="display: none;" >
-      <h1 id="title">بازی پرسش و پاسخ</h1>
+      <!-- <h1 id="title">بازی پرسش و پاسخ</h1> -->
       <div id="content">
+        <div id="question-card-card">
+          <img src="" alt="" id="question-card-img">
+        </div>
       </div>
     </div>
 
@@ -65,8 +68,7 @@ function changeBg(url, el = document.body){
   img.onload = () => el.style.background = `#0f172a url("${url}") center / contain no-repeat fixed`;
   img.src = url;
 }
-// changeBg('new.png');           // body
-// changeBg('another.png', document.querySelector('.hero')); // section
+
 
 blur(2000); // blur screen for first loading
   </script>

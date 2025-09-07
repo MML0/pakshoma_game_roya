@@ -78,24 +78,53 @@ let currentQuestion = 0;
 const questions = [
     {
         q: "کجا برات الهام‌بخش‌تره؟",
+        img_adress:"img/questions/Q1-Question.png",
         answers: ["کوهستان", "دل جنگل", "شهر", "ساحل و دریا"]
     },
     {
         q: "کدوم متریال رو ترجیح میدی؟",
+        img_adress:"img/questions/Q2-Question.png",
         answers: ["سرامیک", "چوب و پارکت", "موکت", "سنگ"]
     },
     {
         q: "مبلمان مورد علاقت چه سبکیه؟",
+        img_adress:"img/questions/Q3-Question.png",
         answers: ["رویال", "کلاسیک", "راحتی", "مدرن"]
     },
     {
         q: "هنر مورد علاقت چیه؟",
+        img_adress:"img/questions/Q4-Question.png",
         answers: ["سینما", "سفالگری", "موسیقی", "ادبیات"]
     }
 ];
 
 const MAX_QUESTIONS = questions.length;
 async function continueGame() {
+
+    try {
+        const fullName = document.getElementById('fullName');
+        const phoneNumber = document.getElementById('phoneNumber');
+
+        // Focus on missing input and let browser show default validation
+        if (!fullName.value) {
+        fullName.focus();
+        throw 'Please fill in all fields!';
+        }
+        
+        if (!/^(09)\d{9}$/.test(phoneNumber.value)) {
+        phoneNumber.select();
+        phoneNumber.focus();
+        throw 'Please fill in all fields!';
+        }
+
+        // If inputs are filled, proceed with the logic
+        // console.log('Form is valid, submitting...');
+    } catch (error) {
+        // Browser will handle the missing fields alert automatically
+        console.log(error);
+        return ;
+    }
+
     // Fetch the current game state from the API
     const data = await apiGet("get_update");
 
@@ -158,38 +187,69 @@ async function apiPost(action, body, admin = false) {
 }
 
 function showQuestion(index) {
-    const secondScreen = document.getElementById("secondScreen");
-    const container = document.getElementById("container");
-    secondScreen.classList.add("hidden");
-    container.style.display = 'block';  
-    container.classList.remove("hidden");
-    if (index >= questions.length) {
-        endGame();
-        return;
-    }
-    const q = questions[index];
-    document.getElementById("title").innerText = "سوال " + (index + 1);
-    const content = document.getElementById("content");
-    content.innerHTML = `<p style="font-size:32px;">${q.q}</p>`;
-    const buttons = [];
-    q.answers.forEach((ans, i) => {
-        const btn = document.createElement("button");
-        btn.className = "btn";
-        btn.innerText = ans;
-        btn.onclick = () => {
-            blur(2000);
-            // Disable all buttons when one is clicked
-            buttons.forEach(b => {
-                b.disabled = true;
-                b.style.opacity = "0.6";
-                b.style.cursor = "not-allowed";
-            });
-            submitAnswer(index + 1, i + 1);
-        };
-        buttons.push(btn);
-        content.appendChild(btn);
+  const secondScreen = document.getElementById("secondScreen");
+  const container = document.getElementById("container");
+  secondScreen.classList.add("hidden");
+  container.style.display = "block";
+  container.classList.remove("hidden");
+
+  if (index >= questions.length) {
+    endGame();
+    return;
+  }
+
+  const q = questions[index];
+//   document.getElementById("title").innerText = "سوال " + (index + 1);
+
+  const content = document.getElementById("content");
+//   content.innerHTML = ""; // clear old
+
+  // card wrapper
+  const card = document.createElement("div");
+  card.className = "question-card";
+
+  // image wrapper
+  if (q.img_adress) {
+    const imgBox = document.getElementById("question-card-div");
+    const img = document.getElementById("question-card-img");
+    img.src = q.img_adress;
+    img.alt = q.q;              // question text in alt
+    img.loading = "lazy";
+    img.decoding = "async";
+    // imgBox.appendChild(img);
+    // card.appendChild(imgBox);
+  }
+
+  // answers grid 2×2
+  document.querySelectorAll('.answers-grid').forEach(el => {
+    el.innerHTML = ''; // removes all children
     });
+  const grid = document.createElement("div");
+  grid.className = "answers-grid";
+
+  const buttons = [];
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement("button");
+    btn.className = "btn answer-btn";
+    btn.type = "button";
+    btn.textContent = ans;
+    btn.onclick = () => {
+      blur(2000);
+      buttons.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = "0.6";
+        b.style.cursor = "not-allowed";
+      });
+      submitAnswer(index + 1, i + 1);
+    };
+    buttons.push(btn);
+    grid.appendChild(btn);
+  });
+
+  card.appendChild(grid);
+  content.appendChild(card);
 }
+
 
 async function submitAnswer(questionId, answer) {
     await apiPost("set_answer", { user_id: userId, qa: questionId + "-" + answer });
@@ -218,11 +278,17 @@ async function resetGame (prams) {
 }
 window.resetGame = resetGame;
 async function endGame() {
-    document.getElementById("title").innerText = "بازی تمام شد 🎉";
+    // document.getElementById("title").innerText = "بازی تمام شد 🎉";
     const content = document.getElementById("content");
     // content.innerHTML = `<button class="btn" onclick="startGame()">شروع دوباره</button>`;
     await apiPost("set_state", { state: "ending" }, true);
-    content.innerHTML = `<button class="btn" onclick="resetGame()">شروع دوباره</button>`;
+    content.innerHTML = `
+        <div class="end-wrap">
+        <div class="end-center">
+            <img src="img/ending/007-Finish-Finished.png" alt="بازی تمام شد" class="end-img">
+        </div>
+        <button class="btn end_btn" onclick="resetGame()" aria-label="شروع دوباره"></button>
+        </div>`;
 }
 
 
@@ -245,4 +311,18 @@ enterBtn.addEventListener("click", () => {
         secondScreen.classList.remove("hidden");
     }, 300);
 });
+document.getElementById('fullName').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    document.getElementById('phoneNumber').focus();
+  }
+});
+
+// Trigger submit when "Enter" is pressed in the phone number field
+document.getElementById('phoneNumber').addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    document.getElementById('rigesterBtn').click(); // Trigger the button click
+  }
+});
+
+
 });
