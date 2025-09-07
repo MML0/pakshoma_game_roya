@@ -4,24 +4,72 @@
     <meta charset="UTF-8" />
     <title>بازی پرسش و پاسخ</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css" />
+    <!-- <link rel="stylesheet" href="dist/kioskboard-2.3.0.min.css" /> -->
     <!-- <script src="dist/kioskboard-2.3.0.min.js"></script> -->
 
     <script src="script.js"></script>
   </head>
   <body>
-    <div class="container">
+    <div id="welcomeScreen" class="welcome-screen" style="background-image: url('img/Welcome/Welcome.png');">
+    <img src="img/Welcome/Start_button.png" alt="شروع" id="enterBtn" class="start-btn">
+    </div>
+
+    <!-- register page -->
+    <div id="secondScreen" class="second-screen hidden" style="background-image: url('img/Login/Login_back.png');">
+      <img src="img/Login/Input.png" alt="عکس اضافه" class="extra-img">  
+      <input type="text" id="fullName" class="form-input">
+      <input type="number" id="phoneNumber"  class="form-input " />
+      <img src="img/Login/Rigester.png" alt="شروع" id="rigesterBtn" class="Rigester">
+    </div>
+
+    <div class="container hidden" id="container" style="display: none;" >
       <h1 id="title">بازی پرسش و پاسخ</h1>
-      <!-- Registration Form -->
-      <div id="registerForm">
-        <input type="text" id="fullName" placeholder="نام و نام خانوادگی"
-          class="form-input" autocomplete="off" />
-        <input type="number" id="phoneNumber" placeholder="شماره موبایل"
-        class="form-input" autocomplete="off" />
-      </div>
       <div id="content">
-        <button class="btn" id="startBtn">شروع بازی</button>
       </div>
     </div>
+
+  <div id="blur-overlay" hidden aria-hidden="true">
+    <div class="loader">  
+      <!-- <div class="ring"></div> -->
+      <img class="logo" src="img/Pointer.png" alt="loading" />
+    </div>
+  </div>
+  <script>
+  (() => {
+  const overlay = document.getElementById('blur-overlay');
+  let t;
+
+  function pageBlur(durationMs = 0){
+    overlay.hidden = false;
+    document.body.classList.add('blur-active');
+
+    if (t) clearTimeout(t);
+    if (durationMs > 0){
+      t = setTimeout(unblur, durationMs);
+    }
+  }
+
+  function unblur(){
+    document.body.classList.remove('blur-active');
+    // wait for fade-out, then remove from a11y tree
+    setTimeout(() => { overlay.hidden = true; }, 260);
+  }
+
+  // Expose (and map to the requested name)
+  window.pageBlur = pageBlur;
+  window.blur = pageBlur;     // requested API: blur(1000)
+  window.unblur = unblur;
+})();
+function changeBg(url, el = document.body){
+  const img = new Image();
+  img.onload = () => el.style.background = `#0f172a url("${url}") center / contain no-repeat fixed`;
+  img.src = url;
+}
+// changeBg('new.png');           // body
+// changeBg('another.png', document.querySelector('.hero')); // section
+
+blur(2000); // blur screen for first loading
+  </script>
+
   </body>
 </html>

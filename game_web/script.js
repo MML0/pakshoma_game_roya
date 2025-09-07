@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const API_URL = "http://127.0.0.1:3000/backend/data.php";   //  API rout
 // const API_URL = "http://192.168.43.123:3000/backend/data.php";   //  API rout
-// const API_URL = "http://192.168.93.88:3000/backend/data.php";   //  API rout
+// const API_URL = "http://192.168.43.83/backend/data.php";   //  API rout
 const ADMIN_PASS = "admin123";    // admin pass
 let userId = null;
 let currentQuestion = 0;
@@ -104,6 +104,11 @@ async function continueGame() {
 
         // If the game is ending or all questions are answered, show the ending page
         if (data.state === "ending" || answersCount >= MAX_QUESTIONS) {
+            const secondScreen = document.getElementById("secondScreen");
+            const container = document.getElementById("container");
+            secondScreen.classList.add("hidden");
+            container.style.display = 'block';  
+            container.classList.remove("hidden");
             endGame();
         }
         // If the game is in the middle of being played, resume from the last question
@@ -116,6 +121,10 @@ async function continueGame() {
 
 
         } else if (data.state === "playing" && answersCount == 0) {
+            startGame()
+            console.log('start game after reload');
+
+        } else if (data.state === "waiting" && answersCount == 0) {
             startGame()
             console.log('start game after reload');
 
@@ -149,6 +158,11 @@ async function apiPost(action, body, admin = false) {
 }
 
 function showQuestion(index) {
+    const secondScreen = document.getElementById("secondScreen");
+    const container = document.getElementById("container");
+    secondScreen.classList.add("hidden");
+    container.style.display = 'block';  
+    container.classList.remove("hidden");
     if (index >= questions.length) {
         endGame();
         return;
@@ -156,13 +170,14 @@ function showQuestion(index) {
     const q = questions[index];
     document.getElementById("title").innerText = "سوال " + (index + 1);
     const content = document.getElementById("content");
-    content.innerHTML = `<p style="font-size:22px;">${q.q}</p>`;
+    content.innerHTML = `<p style="font-size:32px;">${q.q}</p>`;
     const buttons = [];
     q.answers.forEach((ans, i) => {
         const btn = document.createElement("button");
         btn.className = "btn";
         btn.innerText = ans;
         btn.onclick = () => {
+            blur(2000);
             // Disable all buttons when one is clicked
             buttons.forEach(b => {
                 b.disabled = true;
@@ -183,10 +198,17 @@ async function submitAnswer(questionId, answer) {
 }
 
 async function startGame() {
+    blur(1000)
+    const secondScreen = document.getElementById("secondScreen");
+    const container = document.getElementById("container");
+    secondScreen.classList.add("hidden");
+    container.style.display = 'block';  
+    container.classList.remove("hidden");
+
     userId = randomUserId();
     currentQuestion = 0;
     await apiPost("set_state", { state: "playing" }, true);
-    document.getElementById("registerForm").style.display = "none";
+    // document.getElementById("registerForm").style.display = "none";
     showQuestion(currentQuestion);
 }
 
@@ -204,9 +226,23 @@ async function endGame() {
 }
 
 
-document.getElementById("startBtn").addEventListener("click", startGame);
-window.onload = continueGame;
+document.getElementById("rigesterBtn").addEventListener("click",     continueGame);
+// window.onload = continueGame;
+// Disable right-click site-wide
+document.addEventListener('contextmenu', e => e.preventDefault());
 
 
+// Call blur(1000) to show for 1s. Call unblur() to hide any time.
+// blur(2000)
+const enterBtn = document.getElementById("enterBtn");
+const welcomeScreen = document.getElementById("welcomeScreen");
+const secondScreen = document.getElementById("secondScreen");
 
+enterBtn.addEventListener("click", () => {
+    blur(1000)
+    welcomeScreen.classList.add("hidden");
+    setTimeout(() => {
+        secondScreen.classList.remove("hidden");
+    }, 300);
+});
 });
